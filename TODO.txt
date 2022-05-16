@@ -1,0 +1,9 @@
+-be able to move the planets around before starting
+-show the trajectories as lines prior to simulating
+-show a faded out path of the planets behind themselves
+-make the planets look more like planets with gradient or something
+-make collisions happen
+-make it follow multiple planets
+-allow it to zoom in and out
+
+CHANGE ZOOM DEPENDING ON WHERE PLANETS ARE
