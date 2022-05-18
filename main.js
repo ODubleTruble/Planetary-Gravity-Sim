@@ -32,7 +32,7 @@ const grav = 0.01;
 // if -1 = don't follow anything
 // if int = follow int, zoom affected by all
 // if array of 1 int = follow int, zoom only affected by int?
-var camPlan = [0];
+var camPlan = [0, 1, 2];
 
 // zoom factor
 var zoom;
@@ -58,6 +58,10 @@ sBox = {
 // the mouse click position
 var mouseX = 0;
 var mouseY = 0;
+
+// counters for the num of times the sim has ran or the screen updated
+var simCount = 0;
+var drawCount = 0;
 
 // ----------EVENT LISTENERS----------
 
@@ -107,14 +111,23 @@ function init() {
 }
 
 function makeInitialPlanets() {
-  // Planet(r, x, y, vel, dir, color)
-  //planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
-  //planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
-  planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+  let config = 1;
 
-  planets.push(new Planet(30, 700, 450, 0, 0, colorArray[0]));
-  planets.push(new Planet(40, 1100, 450, 0, 0, colorArray[1]));
-  planets.push(new Planet(50, 1400, 450, 0, 0, colorArray[3]));
+  if (config == 1) {
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+  }
+
+  if (config == 2) {
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
+  }
+
+  //planets.push(new Planet(30, 700, 450, 10, 90, colorArray[0]));
+  //planets.push(new Planet(40, 1100, 450, 5, 90, colorArray[1]));
+  //planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[3]));
 }
 
 function Planet(r, x, y, vel, dir, color) {
@@ -246,6 +259,8 @@ function simulatePlanets() {
   if (planets.length > 1) {
     detectColl();
   }
+
+  simCount += 1;
 }
 
 // updates the screen (only visual things)
@@ -266,6 +281,8 @@ function updateScreen() {
   for (let planet of planets) {planet.draw();}
 
   drawPlanetDataBox();
+
+  drawCount += 1;
 }
 
 // ----------DO SOMETHING FUNCTIONS----------
@@ -273,7 +290,7 @@ function updateScreen() {
 // draws the planet data box
 function drawPlanetDataBox() {
   // the height of each planet section
-  let secHei = 75;
+  let secHei = 85;
 
   // the height of the plan info section
   var planInfoHei = secHei * planets.length + 5;
@@ -320,31 +337,36 @@ function drawPlanetDataBox() {
     c.font = '11px serif';
 
     // planet radii
-    let planR = planets[i].r;
+    let planR = planets[i].r.toFixed(4);
     let radText = 'Radius: ' + planR;
     c.fillText(radText, sBox.lef + 15, sBox.top + 75 + secHei * i);
+
+    // planet mass
+    let planMass = parseInt(planets[i].mass).toLocaleString('en-US');
+    let massText = 'Mass: ' + planMass;
+    c.fillText(massText, sBox.lef + 15, sBox.top + 85 + secHei * i);
 
     // planet positions
     let planX = parseInt(planets[i].x);
     let planY = parseInt(planets[i].y);
     let posText = 'Pos: (' + planX + ', ' + planY + ')';
-    c.fillText(posText, sBox.lef + 15, sBox.top + 85 + secHei * i);
+    c.fillText(posText, sBox.lef + 15, sBox.top + 95 + secHei * i);
 
     // planet velocities
     let planVel = planets[i].vel.toFixed(4);
     let planVelDir = parseInt(planets[i].velDir);
     let velText = 'Vel: ' + planVel;
     let velDirText = 'VelDir: ' + planVelDir;
-    c.fillText(velText, sBox.lef + 15, sBox.top + 95 + secHei * i);
-    c.fillText(velDirText, sBox.lef + 15, sBox.top + 105 + secHei * i);
+    c.fillText(velText, sBox.lef + 15, sBox.top + 105 + secHei * i);
+    c.fillText(velDirText, sBox.lef + 15, sBox.top + 115 + secHei * i);
 
     // planet accelerations
     let planAcc = planets[i].acc.toFixed(4);
     let planAccDir = parseInt(planets[i].accDir);
     let accText = 'Acc: ' + planAcc;
     let accDirText = 'AccDir: ' + planAccDir;
-    c.fillText(accText, sBox.lef + 15, sBox.top + 115 + secHei * i);
-    c.fillText(accDirText, sBox.lef + 15, sBox.top + 125 + secHei * i);
+    c.fillText(accText, sBox.lef + 15, sBox.top + 125 + secHei * i);
+    c.fillText(accDirText, sBox.lef + 15, sBox.top + 135 + secHei * i);
   }
 }
 
@@ -494,6 +516,8 @@ function detectColl() {
 
       // runs if the 2 planets are colliding; creates new child planet
       if (dist < minDist) {
+        console.log(`Coll: ${mainPlan} (r:${r1}) and ${iterPlan} (r:${r2})`);
+
         // creates new child planet
         plansCollide(mainPlan, iterPlan);
         break;
@@ -526,11 +550,15 @@ function plansCollide(index1, index2) {
   // radius of sphere when given volume (or mass with density of 1)
   let cRadius = ((3 * cMass) / (4 * Math.PI)) ** (1 / 3);
 
-  let cX = (x1 + x2) / 2; //TODO: change this
-  let cY = (y1 + y2) / 2; //TODO: change this
+  // calculates the child's x and y
+  let cX = calcAvgWithWei(x1, x2, mass1, mass2);
+  let cY = calcAvgWithWei(y1, y2, mass1, mass2);
 
-  let cVel = 0; //TODO: change this
-  let cVelDir = 0; //TODO: change this
+  // calculates the child's vel and velDir
+  // the new vel vector with the input velocities weighted by mass
+  let newWeiVelVec = addVec(vel1 * mass1, velDir1, vel2 * mass2, velDir2);
+  let cVel = newWeiVelVec[0] / (mass1 + mass2);
+  let cVelDir = newWeiVelVec[1];
 
   // delete colliding planets from the planets array
   // makes sure to delete the higher index planet first
@@ -553,10 +581,23 @@ function plansCollide(index1, index2) {
 
   // runs if none of the cam planets were in the collision
   if (!camPlanetWasInColl) {
-    //TODO: make this be more consistent
-
+    // runs for each cam planet
     camPlan.forEach(function (plan, i) {
-      camPlan[i] = plan - 2;
+      // the amount to decrease plan by
+      let decBy = 0;
+
+      // decreases the cam planet by 1 if coll planet 1 is before it
+      if (index1 < plan) {
+        decBy += 1;
+      }
+
+      // decreases the cam planet by 1 if coll planet 2 is before it
+      if (index2 < plan) {
+        decBy += 1;
+      }
+
+      // decreases cam planet
+      camPlan[i] = plan - decBy;
     });
   }
 
@@ -675,6 +716,16 @@ function calcAvgColor(color1, color2, col1Weight = 1, col2Weight = 1) {
   let newHexColor = `#${hexArray[0]}${hexArray[1]}${hexArray[2]}`;
 
   return newHexColor;
+}
+
+// averages two numbers with weights
+function calcAvgWithWei(n1, n2, w1, w2) {
+  // the weighted numbers
+  let wn1 = n1 * w1;
+  let wn2 = n2 * w2;
+
+  // returns the weighted average
+  return (wn1 + wn2) / (w1 + w2);
 }
 
 // ----------THE REST----------
