@@ -4,6 +4,4 @@
 -make the planets look more like planets with gradient or something
 -make collisions happen
 -make it follow multiple planets
--allow it to zoom in and out
-
-CHANGE ZOOM DEPENDING ON WHERE PLANETS ARE
+-make camPlan only be an array

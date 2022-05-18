@@ -32,14 +32,14 @@ const grav = 0.01;
 // if -1 = don't follow anything
 // if int = follow int, zoom affected by all
 // if array of 1 int = follow int, zoom only affected by int?
-const camPlan = [0, 2];
+var camPlan = [0];
 
 // zoom factor
 var zoom;
 const maxZoom = 1;
 
 // the ms between each calculation of the sim
-const simSpeed = 10;
+const simSpeed = 100;
 
 // the times the screen updates in one second
 const fps = 200;
@@ -87,9 +87,10 @@ window.addEventListener('click', function (pos) {
   }
 });
 
-// ----------FUNCTIONS----------
+// ----------MAIN FUNCTIONS----------
 
 function init() {
+  // resets the array of intervals
   for (let interval of intervals) {
     window.clearInterval(interval);
   }
@@ -99,15 +100,21 @@ function init() {
   intervals = [];
   startSim = false;
 
-  // Planet(r, x, y, vel, dir, color)
-  planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
-  planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
-  planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
-
-  //planets.push(new Planet(30, 1000, 450, 6, 70, colorArray[3]));
+  makeInitialPlanets();
 
   // draws the planets' every set interval
   intervals.push(window.setInterval(function () {updateScreen();}, 1000 / fps));
+}
+
+function makeInitialPlanets() {
+  // Planet(r, x, y, vel, dir, color)
+  //planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
+  //planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
+  planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+
+  planets.push(new Planet(30, 700, 450, 0, 0, colorArray[0]));
+  planets.push(new Planet(40, 1100, 450, 0, 0, colorArray[1]));
+  planets.push(new Planet(50, 1400, 450, 0, 0, colorArray[3]));
 }
 
 function Planet(r, x, y, vel, dir, color) {
@@ -224,7 +231,7 @@ function Planet(r, x, y, vel, dir, color) {
   };
 }
 
-// updates the planets data
+// updates the planets data (only data/nonvisual things)
 function simulatePlanets() {
   // update all planets accelerations
   updateAccs();
@@ -234,9 +241,14 @@ function simulatePlanets() {
 
   // update all planets positions
   for (let planet of planets) {planet.updatePos();}
+
+  // detects collisions if there's more than 1 planet
+  if (planets.length > 1) {
+    detectColl();
+  }
 }
 
-// updates the screen
+// updates the screen (only visual things)
 function updateScreen() {
   // clears the canvas
   c.clearRect(0, 0, innerWidth, innerHeight);
@@ -255,6 +267,8 @@ function updateScreen() {
 
   drawPlanetDataBox();
 }
+
+// ----------DO SOMETHING FUNCTIONS----------
 
 // draws the planet data box
 function drawPlanetDataBox() {
@@ -399,6 +413,7 @@ function updateZoom() {
 
   // -----recalculates the zoom-----
   // the zooms needed in each direction to fit the farthest points plus some
+  // TODO: fix this equation because sometimes cam planets go off screen when they shouldn't
   let xZoom = (canvas.width / 1.25) / (farRig - farLef);
   let yZoom = (canvas.height / 1.25) / (farBot - farTop);
 
@@ -455,13 +470,119 @@ function updateAccs() {
   }
 }
 
+// detects collisions
+function detectColl() {
+  // runs for each planet
+  for (let mainPlan = 0; mainPlan < planets.length; mainPlan++) {
+    // get mainPlan data
+    let x1 = planets[mainPlan].x;
+    let y1 = planets[mainPlan].y;
+    let r1 = planets[mainPlan].r;
+
+    // compares mainPlan to each planet after it in the array
+    for (let iterPlan = mainPlan + 1; iterPlan < planets.length; iterPlan++) {
+      // get iterPlan data
+      let x2 = planets[iterPlan].x;
+      let y2 = planets[iterPlan].y;
+      let r2 = planets[iterPlan].r;
+
+      // the distance bewteen the 2 planets
+      let dist = calcDist(x1, y1, x2, y2);
+
+      // the closest the 2 planets can be
+      minDist = r1 + r2;
+
+      // runs if the 2 planets are colliding; creates new child planet
+      if (dist < minDist) {
+        // creates new child planet
+        plansCollide(mainPlan, iterPlan);
+        break;
+      }
+    }
+  }
+}
+
+// make two planets collide; creates child plane
+function plansCollide(index1, index2) {
+  let color1 = planets[index1].color;
+  let color2 = planets[index2].color;
+  let mass1 = planets[index1].mass;
+  let mass2 = planets[index2].mass;
+  let x1 = planets[index1].x;
+  let x2 = planets[index2].x;
+  let y1 = planets[index1].y;
+  let y2 = planets[index2].y;
+  let vel1 = planets[index1].vel;
+  let vel2 = planets[index2].vel;
+  let velDir1 = planets[index1].velDir;
+  let velDir2 = planets[index2].velDir;
+
+  // average of the 2 planets colors
+  let cColor = calcAvgColor(color1, color2, mass1, mass2);
+
+  // sum of the 2 planets masses
+  let cMass = mass1 + mass2;
+
+  // radius of sphere when given volume (or mass with density of 1)
+  let cRadius = ((3 * cMass) / (4 * Math.PI)) ** (1 / 3);
+
+  let cX = (x1 + x2) / 2; //TODO: change this
+  let cY = (y1 + y2) / 2; //TODO: change this
+
+  let cVel = 0; //TODO: change this
+  let cVelDir = 0; //TODO: change this
+
+  // delete colliding planets from the planets array
+  // makes sure to delete the higher index planet first
+  planets.splice(Math.max(index1, index2), 1);
+  planets.splice(Math.min(index1, index2), 1);
+
+  // add the child planet to the planets array
+  planets.push(new Planet(cRadius, cX, cY, cVel, cVelDir, cColor));
+
+  // fixes camPlan
+  let camPlanetWasInColl = false;
+  camPlan.forEach(function (plan, i) {
+    // runs if one of the removed planets is the current camPlan planet
+    if (plan == index1 || plan == index2) {
+      // removes the collided cam planet from camPlan and replaces it with child planet index
+      camPlan.splice(i, 1, planets.length - 1);
+      camPlanetWasInColl = true;
+    }
+  });
+
+  // runs if none of the cam planets were in the collision
+  if (!camPlanetWasInColl) {
+    //TODO: make this be more consistent
+
+    camPlan.forEach(function (plan, i) {
+      camPlan[i] = plan - 2;
+    });
+  }
+
+  // removes duplicate cam planets from camPlan
+  camPlan = camPlan.sort().filter(function (item, pos, ary) {
+    return !pos || item != ary[pos - 1];
+  });
+}
+
+// ----------TOOL FUNCTIONS----------
+
 // given 2 points, calculates their relative dirs; bascially points -> slope -> angle
 function calcDirs(x1, y1, x2, y2) {
   let rise = y2 - y1;
   let run = x2 - x1;
+  var slope;
+
+  // calculates slope; makes sure not to divide by 0
+  if (run == 0) {
+    slope = 0;
+  } else {
+    slope = rise / run;
+  }
 
   // the angle from 1 to 2
-  let dir = (180 * Math.atan(rise / run)) / Math.PI;
+  let dir = (180 * Math.atan(slope)) / Math.PI;
 
   // if 2 is left of 1...
   if (x2 < x1) {
@@ -501,6 +622,59 @@ function addVec(force1, dir1, force2, dir2) {
   dir = calcDirs(0, 0, netEnd[0], netEnd[1])[0];
 
   return [netForce, dir];
+}
+
+// calculate the distance between 2 points
+function calcDist(x1, y1, x2, y2) {
+  let xDif = (x2 - x1) ** 2;
+  let yDif = (y2 - y1) ** 2;
+  return Math.sqrt(xDif + yDif);
+}
+
+// calculates the average of two hex colors
+function calcAvgColor(color1, color2, col1Weight = 1, col2Weight = 1) {
+  // base RGB values for the colors
+  let r1 = parseInt(color1.slice(1, 3), 16) ** 2;
+  let g1 = parseInt(color1.slice(3, 5), 16) ** 2;
+  let b1 = parseInt(color1.slice(5, 7), 16) ** 2;
+  let r2 = parseInt(color2.slice(1, 3), 16) ** 2;
+  let g2 = parseInt(color2.slice(3, 5), 16) ** 2;
+  let b2 = parseInt(color2.slice(5, 7), 16) ** 2;
+
+  // weighted RGB values for the colors
+  wr1 = r1 * col1Weight;
+  wg1 = g1 * col1Weight;
+  wb1 = b1 * col1Weight;
+  wr2 = r2 * col2Weight;
+  wg2 = g2 * col2Weight;
+  wb2 = b2 * col2Weight;
+
+  // weighted averages for the colors
+  let avgR = parseInt(Math.sqrt((wr1 + wr2) / (col1Weight + col2Weight)));
+
+  //let avgR = parseInt(Math.sqrt((r1 + r2) / 2));
+  let avgG = parseInt(Math.sqrt((wg1 + wg2) / (col1Weight + col2Weight)));
+  let avgB = parseInt(Math.sqrt((wb1 + wb2) / (col1Weight + col2Weight)));
+
+  // the hex values for RGB
+  let hexR = avgR.toString(16);
+  let hexG = avgG.toString(16);
+  let hexB = avgB.toString(16);
+
+  // array to hold the hex values
+  let hexArray = [hexR, hexG, hexB];
+
+  // makes sure the hex values are 2 digits
+  hexArray.forEach(function (hex, i) {
+    if (hex.length == 1) {
+      // puts a 0 at the front of the hex
+      hexArray[i] = '0' + hex;
+    }
+  });
+
+  let newHexColor = `#${hexArray[0]}${hexArray[1]}${hexArray[2]}`;
+
+  return newHexColor;
 }
 
 // ----------THE REST----------
