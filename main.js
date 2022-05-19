@@ -32,7 +32,7 @@ const grav = 0.01;
 // if -1 = don't follow anything
 // if int = follow int, zoom affected by all
 // if array of 1 int = follow int, zoom only affected by int?
-var camPlan = [0, 1, 2];
+var camPlan = [0, 1];
 
 // zoom factor
 var zoom;
@@ -62,6 +62,9 @@ var mouseY = 0;
 // counters for the num of times the sim has ran or the screen updated
 var simCount = 0;
 var drawCount = 0;
+
+var config = 1;
+console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
 
@@ -111,8 +114,6 @@ function init() {
 }
 
 function makeInitialPlanets() {
-  let config = 1;
-
   if (config == 1) {
     planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
     planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
@@ -123,6 +124,16 @@ function makeInitialPlanets() {
     planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
     planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
     planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
+  }
+
+  if (config == 3) {
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+  }
+
+  if (config == 4) {
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
   }
 
   //planets.push(new Planet(30, 700, 450, 10, 90, colorArray[0]));
@@ -613,23 +624,33 @@ function plansCollide(index1, index2) {
 function calcDirs(x1, y1, x2, y2) {
   let rise = y2 - y1;
   let run = x2 - x1;
-  var slope;
 
-  // calculates slope; makes sure not to divide by 0
+  let dir;
+
+  // runs if the points are vertically in a line
   if (run == 0) {
-    slope = 0;
+    // if the first point is 'above' the second (actually below since y is reversed)
+    if (y1 > y2) {
+      dir = 270;
+    } else {
+      dir = 90;
+    }
   } else {
-    slope = rise / run;
-  }
+    // runs if the points aren't vertically in a line
 
-  // the angle from 1 to 2
-  let dir = (180 * Math.atan(slope)) / Math.PI;
+    // the slope between the points
+    let slope = rise / run;
 
-  // if 2 is left of 1...
-  if (x2 < x1) {
-    dir += 180;
-  } else if (x2 >= x1 && y2 < x1) {
-    dir += 360;
+    // the angle from 1 to 2
+    dir = (180 * Math.atan(slope)) / Math.PI;
+
+    // fixes dir
+    // if 2 is left of 1...
+    if (x2 < x1) {
+      dir += 180;
+    } else if (x2 >= x1 && y2 < x1) {
+      dir += 360;
+    }
   }
 
   // the angle going the other direction
