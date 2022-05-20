@@ -12,11 +12,12 @@ var c = canvas.getContext('2d');
 
 // palette of colors for planets
 const colorArray = [
-  '#2E86AB',
-  '#A23B72',
-  '#F18F01',
-  '#C73E1D',
-  '#3B1F2B',
+  '#F18F01', // yellow
+  '#C73E1D', // red-orange
+  '#CD5D67', // salmon
+  '#A23B72', // purple
+  '#2E86AB', // blue
+  '#339989', // turquoise
 ];
 
 // array for the setIntervals
@@ -32,14 +33,14 @@ const grav = 0.01;
 // if -1 = don't follow anything
 // if int = follow int, zoom affected by all
 // if array of 1 int = follow int, zoom only affected by int?
-var camPlan = [0, 1];
+var camPlan = [0];
 
 // zoom factor
 var zoom;
 const maxZoom = 1;
 
 // the ms between each calculation of the sim
-const simSpeed = 100;
+const simSpeed = 10;
 
 // the times the screen updates in one second
 const fps = 200;
@@ -63,7 +64,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 1;
+var config = 3;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -114,31 +115,55 @@ function init() {
 }
 
 function makeInitialPlanets() {
+  // original 3-planet simulation; good for consistency tests
   if (config == 1) {
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
-    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+    camPlan = [0, 1, 2];
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[4]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[3]));
   }
 
+  // original 3-planet simulation but weird creation order; good for consistency tests
   if (config == 2) {
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
-    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[1]));
+    camPlan = [0, 1, 2];
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[4]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[3]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
   }
 
+  // line of 4 planets; good for collision tests
   if (config == 3) {
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
+    camPlan = [0, 1, 2, 3];
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
+    planets.push(new Planet(30, 700, 450, 10, 90, colorArray[4]));
+    planets.push(new Planet(40, 1100, 450, 5, 90, colorArray[3]));
+    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[1]));
   }
 
+  // one planet orbits far out; good for auto zoom tests
   if (config == 4) {
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[2]));
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[0]));
+    camPlan = [0, 1];
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
+    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[1]));
   }
 
-  //planets.push(new Planet(30, 700, 450, 10, 90, colorArray[0]));
-  //planets.push(new Planet(40, 1100, 450, 5, 90, colorArray[1]));
-  //planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[3]));
+  // yin yang; turn off clear screen and vectors
+  if (config == 5) {
+    camPlan = [0, 1];
+    planets.push(new Planet(50, 0, 0, 2.5, 300, '#FFFFFF'));
+    planets.push(new Planet(50, 300, 0, 2.5, 120, '#000000'));
+  }
+
+  // compare all 6 colors
+  if (config == 6) {
+    camPlan = [0, 1, 2, 3, 4, 5];
+    planets.push(new Planet(40, 0, 0, 0, 0, colorArray[0]));
+    planets.push(new Planet(40, 100, 0, 0, 0, colorArray[1]));
+    planets.push(new Planet(40, 200, 0, 0, 0, colorArray[2]));
+    planets.push(new Planet(40, 300, 0, 0, 0, colorArray[3]));
+    planets.push(new Planet(40, 400, 0, 0, 0, colorArray[4]));
+    planets.push(new Planet(40, 500, 0, 0, 0, colorArray[5]));
+  }
 }
 
 function Planet(r, x, y, vel, dir, color) {
@@ -537,7 +562,7 @@ function detectColl() {
   }
 }
 
-// make two planets collide; creates child plane
+// make two planets collide; creates child planet
 function plansCollide(index1, index2) {
   let color1 = planets[index1].color;
   let color2 = planets[index2].color;

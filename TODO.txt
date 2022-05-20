@@ -1,3 +1,4 @@
+To-Do:
 1) make camPlan only be an array (and fix auto-zoom)
 2) reformat older functions with newer tool functions
 3) before starting...
@@ -9,3 +10,7 @@
 6) show a faded out path behind planets as they move
 7) make the planets look more like planets (maybe add gradient)
 8) add a way to save planet configurations (and maybe a way to save multiple configurations)
+
+Known Bugs:
+1) auto-zoom is broken
+2) collisions happening at the same time breaks things
