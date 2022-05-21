@@ -11,5 +11,4 @@ To-Do:
 7) add a way to save planet configurations (and maybe a way to save multiple configurations)
 
 Known Bugs:
-1) collisions happening at the same time breaks things
-2) camPlan is broken after first collision in config 1 (fixing camPlan is broken in collisions)
+none :) (sure to find more soon)
