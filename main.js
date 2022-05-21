@@ -61,7 +61,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 4;
+var config = 1;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -594,14 +594,30 @@ function plansCollide(index1, index2) {
   // add the child planet to the planets array
   planets.push(new Planet(cRadius, cX, cY, cVel, cVelDir, cColor));
 
-  // fixes camPlan
+  // -----fixes camPlan-----
+  // copy of camPlan
+  let copyCamPlan = camPlan;
+
+  // whether or not a cam planet was in the collision
   let camPlanetWasInColl = false;
+
+  // number of planets that need to be removed from camPlan
+  let planToRemove = 0;
+
   camPlan.forEach(function (plan, i) {
     // runs if one of the removed planets is the current camPlan planet
     if (plan == index1 || plan == index2) {
-      // removes the collided cam planet from camPlan and replaces it with child planet index
-      camPlan.splice(i, 1, planets.length - 1);
+      // removes the collided cam planet from camPlan and replaces it with placeholder of -1
+      copyCamPlan.splice(copyCamPlan.indexOf(plan), 1, -1);
+      planToRemove += 1;
       camPlanetWasInColl = true;
+    }
+  });
+
+  // replace every placehold of -1 in copyCamPlanwith index of child planet
+  copyCamPlan.forEach(function (plan, i) {
+    if (plan == -1) {
+      copyCamPlan[i] = camPlan.length - 1 - planToRemove;
     }
   });
 
@@ -623,14 +639,17 @@ function plansCollide(index1, index2) {
       }
 
       // decreases cam planet
-      camPlan[i] = plan - decBy;
+      copyCamPlan[i] = plan - decBy;
     });
   }
 
   // removes duplicate cam planets from camPlan
-  camPlan = camPlan.sort().filter(function (item, pos, ary) {
+  copyCamPlan = copyCamPlan.sort().filter(function (item, pos, ary) {
     return !pos || item != ary[pos - 1];
   });
+
+  // sets camPlan to the copy array
+  camPlan = copyCamPlan;
 
   console.log(`New camPlan: [${camPlan}]`);
 }
