@@ -243,11 +243,23 @@ function Planet(r, x, y, vel, dir, color) {
 
   // draws the planet
   this.draw = function () {
+    // the planet itself
     c.beginPath();
     c.arc(this.visX, this.visY, this.visR, 0, Math.PI * 2);
 
+    // creates a gradient
+    let x0 = this.visX; // the x of the starting circle of gradient
+    let y0 = this.visY; // the y of the starting circle of gradient
+    let r0 = 0;
+    let x1 = this.visX;
+    let y1 = this.visY;
+    let r1 = this.visR * 1.2;
+    let grd = c.createRadialGradient(x0, y0, r0, x1, y1, r1);
+    grd.addColorStop(0, this.color);
+    grd.addColorStop(1, '#111111');
+
     // fills the circle with a random color from palette
-    c.fillStyle = this.color;
+    c.fillStyle = grd;
     c.fill();
   };
 }
@@ -277,7 +289,7 @@ function updateScreen() {
   c.clearRect(0, 0, innerWidth, innerHeight);
 
   // updates zoom
-  updateZoomNEW();
+  updateZoom();
 
   // updates all planets visual positions
   for (let planet of planets) {planet.updateVisPos();}
@@ -379,7 +391,7 @@ function drawPlanetDataBox() {
 }
 
 // updates the zoom
-function updateZoomNEW() {
+function updateZoom() {
   // -----finds the farthest points in every direction-----
   // the center of all the planets; [x, y]
   var centPos = calcCentCamPlan();
