@@ -61,7 +61,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 6;
+var config = 8;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -161,6 +161,37 @@ function makeInitialPlanets() {
     planets.push(new Planet(40, 300, 0, 0, 0, colorArray[3]));
     planets.push(new Planet(40, 400, 0, 0, 0, colorArray[4]));
     planets.push(new Planet(40, 500, 0, 0, 0, colorArray[5]));
+  }
+
+  // sun with two planets each with moon orbiting
+  if (config == 7) {
+    camPlan = [0, 1, 2, 3, 4];
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+
+    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[2]));
+    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[3]));
+
+    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[4]));
+    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[5]));
+  }
+
+  // asteroid, sun with two planets each with moon orbiting
+  if (config == 8) {
+    camPlan = [0, 1, 2, 3, 4];
+
+    // sun
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+
+    // planet and moon pair 1
+    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[2]));
+    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[3]));
+
+    // planet and moon pair 2
+    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[4]));
+    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[5]));
+
+    // astroid
+    planets.push(new Planet(40, 20000, 0, 40, 180.7, colorArray[1]));
   }
 }
 
@@ -484,19 +515,9 @@ function updateZoom() {
   }
 
   // -----finds center of camera-----
-  // the totals of the x and y values of the planets the camera depends on
-  let totX = 0;
-  let totY = 0;
-
-  // finds the total position values
-  for (let planNum of camPlan) {
-    totX += planets[planNum].x;
-    totY += planets[planNum].y;
-  }
-
-  // the center of the planets
-  let centX = totX / camPlan.length;
-  let centY = totY / camPlan.length;
+  let centPos = calcCentCamPlan();
+  let centX = centPos[0];
+  let centY = centPos[1];
 
   // -----finds the farthest points in every direction-----
   // recalculates the farthest points in every direction
@@ -515,7 +536,6 @@ function updateZoom() {
 
   // -----recalculates the zoom-----
   // the zooms needed in each direction to fit the farthest points plus some
-  // TODO: fix this equation because sometimes cam planets go off screen when they shouldn't
   let xZoom = (canvas.width / 1.25) / (farRig - farLef);
   let yZoom = (canvas.height / 1.25) / (farBot - farTop);
 
@@ -869,6 +889,12 @@ function calcAvgWithWei(n1, n2, w1, w2) {
 
 // calculates the center of all the cam planets
 function calcCentCamPlan() {
+  // finds the largest radius in camPlan
+  let largRad = 0;
+  for (let planNum of camPlan) {
+    largRad = Math.max(largRad, planets[planNum].r);
+  }
+
   // stores the farthest points in every direction
   // starts at the pos of first cam plan
   var farLef = planets[camPlan[0]].x;
@@ -878,14 +904,15 @@ function calcCentCamPlan() {
 
   // runs for each cam planet; calculates farthest points
   for (let planNum of camPlan) {
+    // data of the current cam planet
+    // uses largRad for radius to reduce some screen shake
     let planX = planets[planNum].x;
     let planY = planets[planNum].y;
-    let planR = planets[planNum].r;
 
-    farLef = Math.min(farLef, planX - planR);
-    farRig = Math.max(farRig, planX + planR);
-    farTop = Math.min(farTop, planY - planR);
-    farBot = Math.max(farBot, planY + planR);
+    farLef = Math.min(farLef, planX - largRad);
+    farRig = Math.max(farRig, planX + largRad);
+    farTop = Math.min(farTop, planY - largRad);
+    farBot = Math.max(farBot, planY + largRad);
   }
 
   // the center of the planets

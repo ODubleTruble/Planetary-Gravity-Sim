@@ -10,4 +10,4 @@ To-Do:
 4) add a way to save planet configurations (and maybe a way to save multiple configurations)
 
 Known Bugs:
-none :) (sure to find more soon)
+1) auto-zoom isn't correct for a single planet (when there's 1 planet, zoom should be maxZoom)
