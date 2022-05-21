@@ -226,19 +226,23 @@ function Planet(r, x, y, vel, dir, color) {
     // changes the line width
     c.lineWidth = 5 * zoom;
 
-    // draws the velocity vector
-    c.beginPath();
-    c.moveTo(this.visX, this.visY);
-    c.lineTo(this.visX + dxVel, this.visY + dyVel);
-    c.strokeStyle = '#068501';
-    c.stroke();
+    // draws the velocity vector if vel isn't 0
+    if (this.vel != 0) {
+      c.beginPath();
+      c.moveTo(this.visX, this.visY);
+      c.lineTo(this.visX + dxVel, this.visY + dyVel);
+      c.strokeStyle = '#068501';
+      c.stroke();
+    }
 
-    // draws the acceleration vector
-    c.beginPath();
-    c.moveTo(this.visX, this.visY);
-    c.lineTo(this.visX + dxAcc, this.visY + dyAcc);
-    c.strokeStyle = '#a61d08';
-    c.stroke();
+    if (this.acc != 0) {
+      // draws the acceleration vector
+      c.beginPath();
+      c.moveTo(this.visX, this.visY);
+      c.lineTo(this.visX + dxAcc, this.visY + dyAcc);
+      c.strokeStyle = '#a61d08';
+      c.stroke();
+    }
   };
 
   // draws the planet
@@ -309,24 +313,32 @@ function updateScreen() {
 
 // draws the planet data box
 function drawPlanetDataBox() {
+  // the top and bot of the current section; y-value
+  let topOfSec;
+  let botOfSec;
+
+  // the height of the vis info sec
+  let visInfoHei = 39;
+
   // the height of each planet section
   let secHei = 85;
 
   // the height of the plan info section
-  var planInfoHei = secHei * planets.length + 5;
+  let planInfoHei = secHei * planets.length + 5;
 
-  // updates sBox.hei
-  sBox.hei = (planets.length * secHei) + 60;
+  // updates sBox.hei; the constant accounts for margins
+  sBox.hei = 59 + visInfoHei + planInfoHei;
 
+  // -----MAIN BOX-----
   // draws the main box
   c.fillStyle = '#333333';
   c.fillRect(sBox.lef, sBox.top, sBox.wid, sBox.hei);
 
-  // the top button
+  // the top button/title
   c.fillStyle = '#999999';
   c.fillRect(sBox.lef + 7, sBox.top + 7, sBox.wid - 14, 30);
 
-  // the button text
+  // the button/title text
   c.fillStyle = '#111111';
   if (!startSim) {
     c.font = 'bold 28px serif';
@@ -336,57 +348,87 @@ function drawPlanetDataBox() {
     c.fillText('Info Box', sBox.lef + 23, sBox.top + 32);
   }
 
-  // the box that has planet info
+  // adjusts botOfSec and topOfSec
+  botOfSec = sBox.top + 37;
+  topOfSec = botOfSec + 10;
+  botOfSec = topOfSec;
+
+  // -----VISUALS INFO BOX-----
+  // draws the box that has visuals info
   c.fillStyle = '#777777';
-  c.fillRect(sBox.lef + 5, sBox.top + 50, sBox.wid - 10, planInfoHei);
+  c.fillRect(sBox.lef + 5, topOfSec, sBox.wid - 10, visInfoHei);
+
+  // the fillStyle for text
+  c.fillStyle = '#111111';
+
+  // label of section
+  c.font = 'bolder 12px serif';
+  c.fillText('Visual Info:', sBox.lef + 9, topOfSec + 13);
+
+  // info in the sec
+  c.font = '11px serif';
+  let camPlanText = `CamPlan: [${camPlan}]`;
+  c.fillText(camPlanText, sBox.lef + 14, topOfSec + 23);
+  let zoomText = `Zoom: ${zoom.toFixed(5)}`;
+  c.fillText(zoomText, sBox.lef + 14, topOfSec + 34);
+
+  // adjusts botOfSec and topOfSec
+  botOfSec = topOfSec + visInfoHei;
+  topOfSec = botOfSec + 7;
+  botOfSec = topOfSec;
+
+  // -----PLAN INFO BOX-----
+  // draws the box that has planet info
+  c.fillStyle = '#777777';
+  c.fillRect(sBox.lef + 5, topOfSec, sBox.wid - 10, planInfoHei);
 
   // gives info on the planets
   for (let i = 0; i < planets.length; i++) {
     // color boundaries
     c.fillStyle = planets[i].color;
-    c.fillRect(sBox.lef + 5, sBox.top + 50 + secHei * i, 3, secHei + 5);
+    c.fillRect(sBox.lef + 5, topOfSec + secHei * i, 3, secHei + 5);
 
     // sets text color back to normal
     c.fillStyle = '#111111';
 
     // planet numbers
     c.font = 'bolder 12px serif';
-    c.fillText('Planet ' + i + ':', sBox.lef + 10, sBox.top + 65 + secHei * i);
+    c.fillText('Planet ' + i + ':', sBox.lef + 10, topOfSec + 13 + secHei * i);
 
     // sets text back to normal
     c.font = '11px serif';
 
     // planet radii
-    let planR = planets[i].r.toFixed(4);
+    let planR = planets[i].r.toFixed(5);
     let radText = 'Radius: ' + planR;
-    c.fillText(radText, sBox.lef + 15, sBox.top + 75 + secHei * i);
+    c.fillText(radText, sBox.lef + 15, topOfSec + 23 + secHei * i);
 
     // planet mass
     let planMass = parseInt(planets[i].mass).toLocaleString('en-US');
     let massText = 'Mass: ' + planMass;
-    c.fillText(massText, sBox.lef + 15, sBox.top + 85 + secHei * i);
+    c.fillText(massText, sBox.lef + 15, topOfSec + 33 + secHei * i);
 
     // planet positions
     let planX = parseInt(planets[i].x);
     let planY = parseInt(planets[i].y);
     let posText = 'Pos: (' + planX + ', ' + planY + ')';
-    c.fillText(posText, sBox.lef + 15, sBox.top + 95 + secHei * i);
+    c.fillText(posText, sBox.lef + 15, topOfSec + 43 + secHei * i);
 
     // planet velocities
-    let planVel = planets[i].vel.toFixed(4);
+    let planVel = planets[i].vel.toFixed(5);
     let planVelDir = parseInt(planets[i].velDir);
     let velText = 'Vel: ' + planVel;
     let velDirText = 'VelDir: ' + planVelDir;
-    c.fillText(velText, sBox.lef + 15, sBox.top + 105 + secHei * i);
-    c.fillText(velDirText, sBox.lef + 15, sBox.top + 115 + secHei * i);
+    c.fillText(velText, sBox.lef + 15, topOfSec + 53 + secHei * i);
+    c.fillText(velDirText, sBox.lef + 15, topOfSec + 63 + secHei * i);
 
     // planet accelerations
-    let planAcc = planets[i].acc.toFixed(4);
+    let planAcc = planets[i].acc.toFixed(5);
     let planAccDir = parseInt(planets[i].accDir);
     let accText = 'Acc: ' + planAcc;
     let accDirText = 'AccDir: ' + planAccDir;
-    c.fillText(accText, sBox.lef + 15, sBox.top + 125 + secHei * i);
-    c.fillText(accDirText, sBox.lef + 15, sBox.top + 135 + secHei * i);
+    c.fillText(accText, sBox.lef + 15, topOfSec + 73 + secHei * i);
+    c.fillText(accDirText, sBox.lef + 15, topOfSec + 83 + secHei * i);
   }
 }
 
