@@ -29,15 +29,12 @@ var planets = [];
 // gravitational constant
 const grav = 0.01;
 
-// the planet the camera focuses on
-// if -1 = don't follow anything
-// if int = follow int, zoom affected by all
-// if array of 1 int = follow int, zoom only affected by int?
+// array of planets the camera follows
 var camPlan = [0];
 
 // zoom factor
 var zoom;
-const maxZoom = 1;
+const maxZoom = 0.8;
 
 // the ms between each calculation of the sim
 const simSpeed = 10;
@@ -64,7 +61,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 3;
+var config = 4;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -142,9 +139,10 @@ function makeInitialPlanets() {
 
   // one planet orbits far out; good for auto zoom tests
   if (config == 4) {
-    camPlan = [0, 1];
+    camPlan = [0, 1, 2];
     planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
     planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[1]));
+    planets.push(new Planet(30, 550, 300, 10, 180, colorArray[4]));
   }
 
   // yin yang; turn off clear screen and vectors
@@ -202,37 +200,11 @@ function Planet(r, x, y, vel, dir, color) {
 
   // updates the planet's visual pos to account for camPlan
   this.updateVisPos = function () {
-    // runs if camPlan is an array of planets to situate the camera between
-    if (Array.isArray(camPlan)) {
-      // the totals of the x and y values of the planets the camera depends on
-      let totX = 0;
-      let totY = 0;
+    let centPos = calcCentCamPlan();
 
-      // finds the total position values
-      for (let planNum of camPlan) {
-        totX += planets[planNum].x;
-        totY += planets[planNum].y;
-      }
-
-      // the center of the planets
-      let centX = totX / camPlan.length;
-      let centY = totY / camPlan.length;
-
-      // changes the visual coords to the center of the planets in question
-      this.visX = (this.x * zoom) + (canvas.width / 2) - (centX * zoom);
-      this.visY = (this.y * zoom) + (canvas.height / 2) - (centY * zoom);
-
-    } else {
-      if (camPlan == -1) {
-        // doesn't follow any planet
-        this.visX = this.x * zoom;
-        this.visY = this.y * zoom;
-      } else {
-        // follows the planet at index camPlan
-        this.visX = (this.x * zoom) + (canvas.width / 2) - (planets[camPlan].x * zoom);
-        this.visY = (this.y * zoom) + (canvas.height / 2) - (planets[camPlan].y * zoom);
-      }
-    }
+    // changes the visual coords to the center of the planets in question
+    this.visX = (this.x * zoom) + (canvas.width / 2) - (centPos[0] * zoom);
+    this.visY = (this.y * zoom) + (canvas.height / 2) - (centPos[1] * zoom);
 
     this.visR = this.r * zoom;
   };
@@ -305,7 +277,7 @@ function updateScreen() {
   c.clearRect(0, 0, innerWidth, innerHeight);
 
   // updates zoom
-  updateZoom();
+  updateZoomNEW();
 
   // updates all planets visual positions
   for (let planet of planets) {planet.updateVisPos();}
@@ -407,6 +379,40 @@ function drawPlanetDataBox() {
 }
 
 // updates the zoom
+function updateZoomNEW() {
+  // -----finds the farthest points in every direction-----
+  // the center of all the planets; [x, y]
+  var centPos = calcCentCamPlan();
+
+  // stores the farthest points in every direction
+  // starts at the center of all the planets
+  var farLef = centPos[0];
+  var farRig = centPos[0];
+  var farTop = centPos[1];
+  var farBot = centPos[1];
+
+  // finds the farthest points in every direction of all cam planets
+  for (let planNum of camPlan) {
+    // data on the current cam planet
+    let planX = planets[planNum].x;
+    let planY = planets[planNum].y;
+    let planR = planets[planNum].r;
+
+    farLef = Math.min(farLef, planX - planR);
+    farRig = Math.max(farRig, planX + planR);
+    farTop = Math.min(farTop, planY - planR);
+    farBot = Math.max(farBot, planY + planR);
+  }
+
+  // -----recalculates the zoom-----
+  let sideBorder = 1.2;
+  let xZoom = (canvas.width / sideBorder) / (farRig - farLef);
+  let yZoom = (canvas.height / sideBorder) / (farBot - farTop);
+
+  zoom = Math.min(maxZoom, xZoom, yZoom);
+}
+
+// updates the zoom
 function updateZoom() {
   // the farthest points in every direction
   var farLef;
@@ -414,59 +420,43 @@ function updateZoom() {
   var farTop;
   var farBot;
 
-  if (!Array.isArray(camPlan)) { // runs if camPlan isn't an array
-    // recalculates the farthest points in every direction
-    farLef = planets[camPlan].x - planets[camPlan].r - (canvas.width / 2);
-    farRig = planets[camPlan].x + planets[camPlan].r + (canvas.width / 2);
-    farTop = planets[camPlan].y - planets[camPlan].r - (canvas.height / 2);
-    farBot = planets[camPlan].y + planets[camPlan].r + (canvas.height / 2);
+  // -----finds largest radius-----
+  // largest radius of the cam planets
+  var largRad = 0;
 
-    // finds the farthest points in every direction of all planets
-    for (let planet of planets) {
-      farLef = Math.min(farLef, planet.x);
-      farRig = Math.max(farRig, planet.x);
-      farTop = Math.min(farTop, planet.y);
-      farBot = Math.max(farBot, planet.y);
-    }
-  } else { // runs if camPlan is an array
-    // -----finds largest radius-----
-    // largest radius of the cam planets
-    var largRad = 0;
+  // finds the largest radius of the cam planets
+  for (let planNum of camPlan) {
+    largRad = Math.max(largRad, planets[planNum].r);
+  }
 
-    // finds the largest radius of the cam planets
-    for (let planNum of camPlan) {
-      largRad = Math.max(largRad, planets[planNum].r);
-    }
+  // -----finds center of camera-----
+  // the totals of the x and y values of the planets the camera depends on
+  let totX = 0;
+  let totY = 0;
 
-    // -----finds center of camera-----
-    // the totals of the x and y values of the planets the camera depends on
-    let totX = 0;
-    let totY = 0;
+  // finds the total position values
+  for (let planNum of camPlan) {
+    totX += planets[planNum].x;
+    totY += planets[planNum].y;
+  }
 
-    // finds the total position values
-    for (let planNum of camPlan) {
-      totX += planets[planNum].x;
-      totY += planets[planNum].y;
-    }
+  // the center of the planets
+  let centX = totX / camPlan.length;
+  let centY = totY / camPlan.length;
 
-    // the center of the planets
-    let centX = totX / camPlan.length;
-    let centY = totY / camPlan.length;
+  // -----finds the farthest points in every direction-----
+  // recalculates the farthest points in every direction
+  farLef = centX - largRad - (canvas.width / 2);
+  farRig = centX + largRad + (canvas.width / 2);
+  farTop = centY - largRad - (canvas.height / 2);
+  farBot = centY + largRad + (canvas.height / 2);
 
-    // -----finds the farthest points in every direction-----
-    // recalculates the farthest points in every direction
-    farLef = centX - largRad - (canvas.width / 2);
-    farRig = centX + largRad + (canvas.width / 2);
-    farTop = centY - largRad - (canvas.height / 2);
-    farBot = centY + largRad + (canvas.height / 2);
-
-    // finds the farthest points in every direction of all cam planets
-    for (let planNum of camPlan) {
-      farLef = Math.min(farLef, planets[planNum].x);
-      farRig = Math.max(farRig, planets[planNum].x);
-      farTop = Math.min(farTop, planets[planNum].y);
-      farBot = Math.max(farBot, planets[planNum].y);
-    }
+  // finds the farthest points in every direction of all cam planets
+  for (let planNum of camPlan) {
+    farLef = Math.min(farLef, planets[planNum].x);
+    farRig = Math.max(farRig, planets[planNum].x);
+    farTop = Math.min(farTop, planets[planNum].y);
+    farBot = Math.max(farBot, planets[planNum].y);
   }
 
   // -----recalculates the zoom-----
@@ -641,6 +631,8 @@ function plansCollide(index1, index2) {
   camPlan = camPlan.sort().filter(function (item, pos, ary) {
     return !pos || item != ary[pos - 1];
   });
+
+  console.log(`New camPlan: [${camPlan}]`);
 }
 
 // ----------TOOL FUNCTIONS----------
@@ -772,6 +764,34 @@ function calcAvgWithWei(n1, n2, w1, w2) {
 
   // returns the weighted average
   return (wn1 + wn2) / (w1 + w2);
+}
+
+// calculates the center of all the cam planets
+function calcCentCamPlan() {
+  // stores the farthest points in every direction
+  // starts at the pos of first cam plan
+  var farLef = planets[camPlan[0]].x;
+  var farRig = planets[camPlan[0]].x;
+  var farTop = planets[camPlan[0]].y;
+  var farBot = planets[camPlan[0]].y;
+
+  // runs for each cam planet; calculates farthest points
+  for (let planNum of camPlan) {
+    let planX = planets[planNum].x;
+    let planY = planets[planNum].y;
+    let planR = planets[planNum].r;
+
+    farLef = Math.min(farLef, planX - planR);
+    farRig = Math.max(farRig, planX + planR);
+    farTop = Math.min(farTop, planY - planR);
+    farBot = Math.max(farBot, planY + planR);
+  }
+
+  // the center of the planets
+  let centX = (farLef + farRig) / 2;
+  let centY = (farTop + farBot) / 2;
+
+  return [centX, centY];
 }
 
 // ----------THE REST----------
