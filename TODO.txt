@@ -1,5 +1,5 @@
 To-Do:
-1) add a way to change planet colors
+1) add a button to reset the simulation
 2) show the predicted trajectories as lines before starting
 3) make the camera more fluid and less shaky/rigid
 4) show a faded out path behind planets as they move

@@ -11,7 +11,8 @@ canvas.height = window.innerHeight;
 var c = canvas.getContext('2d');
 
 // palette of colors for planets
-const colorArray = [
+var colorArray = [
+  '#FFFFFF', // white
   '#F18F01', // yellow
   '#C73E1D', // red-orange
   '#CD5D67', // salmon
@@ -119,40 +120,40 @@ function init() {
 function makeInitialPlanets() {
   if (config == 0) {
     camPlan = [0];
-    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[1]));
   }
 
   // original 3-planet simulation; good for consistency tests
   if (config == 1) {
     camPlan = [0, 1, 2];
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[4]));
-    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[3]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[1]));
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[5]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[4]));
   }
 
   // original 3-planet simulation but weird creation order; good for consistency tests
   if (config == 2) {
     camPlan = [0, 1, 2];
-    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[4]));
-    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[3]));
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
+    planets.push(new Planet(20, 550, 200, 7, 140, colorArray[5]));
+    planets.push(new Planet(10, 1000, 100, 4, 70, colorArray[4]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[1]));
   }
 
   // line of 4 planets; good for collision tests
   if (config == 3) {
     camPlan = [0, 1, 2, 3];
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
-    planets.push(new Planet(30, 700, 450, 10, 90, colorArray[4]));
-    planets.push(new Planet(40, 1100, 450, 5, 90, colorArray[3]));
-    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[1]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[1]));
+    planets.push(new Planet(30, 700, 450, 10, 90, colorArray[5]));
+    planets.push(new Planet(40, 1100, 450, 5, 90, colorArray[4]));
+    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[2]));
   }
 
   // one planet orbits far out; good for auto zoom tests
   if (config == 4) {
     camPlan = [0, 1, 2];
-    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[0]));
-    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[1]));
-    planets.push(new Planet(30, 550, 300, 10, 180, colorArray[4]));
+    planets.push(new Planet(60, 550, 450, 0, 0, colorArray[1]));
+    planets.push(new Planet(50, 1400, 450, 5, 90, colorArray[2]));
+    planets.push(new Planet(30, 550, 300, 10, 180, colorArray[5]));
   }
 
   // yin yang; turn off clear screen and vectors
@@ -165,24 +166,24 @@ function makeInitialPlanets() {
   // compare all 6 colors
   if (config == 6) {
     camPlan = [0, 1, 2, 3, 4, 5];
-    planets.push(new Planet(40, 0, 0, 0, 0, colorArray[0]));
-    planets.push(new Planet(40, 100, 0, 0, 0, colorArray[1]));
-    planets.push(new Planet(40, 200, 0, 0, 0, colorArray[2]));
-    planets.push(new Planet(40, 300, 0, 0, 0, colorArray[3]));
-    planets.push(new Planet(40, 400, 0, 0, 0, colorArray[4]));
-    planets.push(new Planet(40, 500, 0, 0, 0, colorArray[5]));
+    planets.push(new Planet(40, 0, 0, 0, 0, colorArray[1]));
+    planets.push(new Planet(40, 100, 0, 0, 0, colorArray[2]));
+    planets.push(new Planet(40, 200, 0, 0, 0, colorArray[3]));
+    planets.push(new Planet(40, 300, 0, 0, 0, colorArray[4]));
+    planets.push(new Planet(40, 400, 0, 0, 0, colorArray[5]));
+    planets.push(new Planet(40, 500, 0, 0, 0, colorArray[6]));
   }
 
   // sun with two planets each with moon orbiting
   if (config == 7) {
     camPlan = [0, 1, 2, 3, 4];
-    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[1]));
 
-    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[2]));
-    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[3]));
+    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[3]));
+    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[4]));
 
-    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[4]));
-    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[5]));
+    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[5]));
+    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[6]));
   }
 
   // asteroid, sun with two planets each with moon orbiting
@@ -190,18 +191,18 @@ function makeInitialPlanets() {
     camPlan = [0, 1, 2, 3, 4];
 
     // sun
-    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[1]));
 
     // planet and moon pair 1
-    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[2]));
-    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[3]));
+    planets.push(new Planet(20, -500, 0, 4, 270, colorArray[3]));
+    planets.push(new Planet(10, -550, 0, 1, 270, colorArray[4]));
 
     // planet and moon pair 2
-    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[4]));
-    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[5]));
+    planets.push(new Planet(20, 500, 0, 4, 90, colorArray[5]));
+    planets.push(new Planet(10, 550, 0, 1, 90, colorArray[6]));
 
     // astroid
-    planets.push(new Planet(40, 20000, 0, 40, 180.7, colorArray[1]));
+    planets.push(new Planet(40, 20000, 0, 40, 180.7, colorArray[2]));
   }
 }
 
@@ -357,7 +358,55 @@ function updateScreen() {
 // ----------DO SOMETHING FUNCTIONS----------
 
 // creates the html for the planets
-function createPlanHTML() {
+function createPlanHTML(updateColors = true) {
+  // -----DIV FOR THE COLORS-----
+  if (updateColors) {
+    // get the colors div and clear it
+    const colorsDiv = document.getElementById('colors');
+    colorsDiv.innerHTML = '';
+
+    // changes the grid layout based on screen size
+    colorsDiv.style.gridTemplateColumns = '1fr '.repeat(window.innerWidth / 300);
+
+    // runs for each color in the palette
+    colorArray.forEach(function (color, i) {
+      // create the div for this color
+      let colDiv = document.createElement('div');
+      colDiv.className = `color${i}`;
+
+      // the number of this color
+      let colorNum = document.createElement('label');
+      colorNum.innerHTML = `Color ${i + 1}: `;
+      colDiv.appendChild(colorNum);
+
+      // the color input for this color
+      let colorIn = document.createElement('input');
+      colorIn.setAttribute('type', 'color');
+      colorIn.setAttribute('value', color);
+      colorIn.setAttribute('id', `col${i}`);
+      colorIn.setAttribute('name', `col${i}`);
+      colorIn.setAttribute('oninput', `updateColor(${i})`);
+      colorIn.className = 'colorInput';
+      colDiv.appendChild(colorIn);
+
+      // the remove button
+      // only runs if it's not the first color to prevent deleting all the colors
+      if (i > 0) {
+        let remColBut = document.createElement('input');
+        remColBut.setAttribute('type', 'button');
+        remColBut.setAttribute('value', '-');
+        remColBut.setAttribute('onclick', `removeColor(${i})`);
+        remColBut.className = 'removeColorButton';
+        colDiv.appendChild(remColBut);
+      }
+
+      // insert the colorDiv
+      colorsDiv.insertAdjacentElement('beforeend', colDiv);
+    });
+  }
+
+  // -----DIV FOR THE PLANETS-----
+
   // get the planets div and clear it
   const planetsDiv = document.getElementById('planets');
   planetsDiv.innerHTML = '';
@@ -373,16 +422,47 @@ function createPlanHTML() {
 
     // the planet header
     let planHeader = document.createElement('h3');
-    planHeader.innerHTML = `Planet ${i}`;
+    planHeader.innerHTML = `Planet ${i + 1}`;
     planDiv.appendChild(planHeader);
 
     // the remove button
-    let remBut = document.createElement('input');
-    remBut.setAttribute('type', 'button');
-    remBut.setAttribute('value', '-');
-    remBut.setAttribute('onclick', `removePlan(${i})`);
-    remBut.className = 'removeButton';
-    planDiv.appendChild(remBut);
+    let remPlanBut = document.createElement('input');
+    remPlanBut.setAttribute('type', 'button');
+    remPlanBut.setAttribute('value', '-');
+    remPlanBut.setAttribute('onclick', `removePlan(${i})`);
+    remPlanBut.className = 'removePlanButton';
+    planDiv.appendChild(remPlanBut);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // color
+    let colLabel = document.createElement('label');
+    colLabel.innerHTML = 'Color: ';
+    planDiv.appendChild(colLabel);
+    let colBox = document.createElement('select');
+    colBox.setAttribute('id', `plan${i}color`);
+    colBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'color')`);
+    let colorIsInPalette = false;
+    colorArray.forEach(function (color, i) {
+      let colorOp = document.createElement('option');
+      colorOp.innerHTML = i + 1;
+      if (color == plan.color) {
+        colorOp.selected = true;
+        colorIsInPalette = true;
+      }
+
+      colBox.appendChild(colorOp);
+    });
+
+    if (!colorIsInPalette) {
+      let colorOp = document.createElement('option');
+      colorOp.innerHTML = 'Not in Palette';
+      colorOp.selected = true;
+      colBox.appendChild(colorOp);
+    }
+
+    planDiv.appendChild(colBox);
 
     // insert a break
     planDiv.appendChild(document.createElement('br'));
@@ -498,7 +578,7 @@ function createPlanHTML() {
   });
 }
 
-// runs when one of the boxes in the html has changed
+// runs if one of the boxes in the planets html has changed
 function htmlInputsChanged(planNum, varName) {
   if (varName == 'cam') {
     // runs if the change was for the camera
@@ -549,8 +629,16 @@ function htmlInputsChanged(planNum, varName) {
       let rBox = document.getElementById(`plan${planNum}r`);
       rBox.value = planets[planNum].r;
     }
+  } else if (varName == 'color') {
+    // runs if the change was for color
+
+    // gets the changed value
+    newVal = document.getElementById(`plan${planNum}${varName}`).value - 1;
+
+    // change the planets color to the input palette color
+    planets[planNum].color = colorArray[newVal];
   } else {
-    // runs if the change wasn't for camera, radius, or mass
+    // runs if the change wasn't for camera, radius, mass, or color
 
     // gets the changed value
     newVal = document.getElementById(`plan${planNum}${varName}`).value;
@@ -561,6 +649,9 @@ function htmlInputsChanged(planNum, varName) {
     // sets the planet's value to the input value
     planets[planNum][varName] = newVal;
   }
+
+  // update the html
+  createPlanHTML();
 }
 
 // runs if the button to add a new planet was pressed
@@ -597,6 +688,40 @@ function removePlan(planNum) {
   planets.splice(planIndex, 1);
 
   // -----updates the html-----
+  createPlanHTML();
+}
+
+// runs if one of the color inputs changed
+function updateColor(colNum) {
+  // updates the color in colorArray to the input color
+  colorArray[colNum] = document.getElementById(`col${colNum}`).value;
+
+  // updates the html without updating the color sections
+  createPlanHTML(false);
+}
+
+// runs if the button to add a new color was pressed
+function addNewColor() {
+  colorArray.push('#FFFFFF');
+  createPlanHTML();
+}
+
+// runs if button to remove a color is pressed
+function removeColor(colNum) {
+  // makes all the planets that were using this color be the first color in colorArray
+  // runs for each planet
+  planets.forEach(function (plan, i) {
+    // runs if the planets color is the one being deleted
+    if (plan.color == colorArray[colNum]) {
+      // sets the planets color to the first in colorArray
+      planets[i].color = colorArray[0];
+    }
+  });
+
+  // removes the color from the array
+  colorArray.splice(colNum, 1);
+
+  // updates the html
   createPlanHTML();
 }
 
@@ -669,7 +794,7 @@ function drawPlanetDataBox() {
 
   // info in the sec
   c.font = '11px serif';
-  let camPlanText = `CamPlan: [${camPlan}]`;
+  let camPlanText = `CamPlan: [${camPlan.map(num => num + 1)}]`;
   c.fillText(camPlanText, sBox.lef + 14, topOfSec + 23);
   let zoomText = `Zoom: ${zoom.toFixed(5)}`;
   c.fillText(zoomText, sBox.lef + 14, topOfSec + 34);
@@ -695,7 +820,7 @@ function drawPlanetDataBox() {
 
     // planet numbers
     c.font = 'bolder 12px serif';
-    c.fillText('Planet ' + i + ':', sBox.lef + 10, topOfSec + 13 + secHei * i);
+    c.fillText('Planet ' + (i + 1) + ':', sBox.lef + 10, topOfSec + 13 + secHei * i);
 
     // sets text back to normal
     c.font = '11px serif';
