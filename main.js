@@ -61,7 +61,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 1;
+var config = 8;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -475,6 +475,10 @@ function createPlanHTML() {
     camDepBox.setAttribute('id', `plan${i}cam`);
     camDepBox.setAttribute('name', `plan${i}cam`);
     camDepBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'cam')`);
+    if (camPlan.includes(i)) {
+      camDepBox.checked = true;
+    }
+
     planDiv.appendChild(camDepBox);
 
     // insert the planDiv
@@ -487,7 +491,29 @@ function htmlInputsChanged(planNum, varName) {
   if (varName == 'cam') {
     // runs if the change was for the camera
 
-    console.log(`plan ${planNum} should change camera`);
+    // gets the changed value
+    newVal = document.getElementById(`plan${planNum}${varName}`).checked;
+
+    if (newVal) {
+      // runs if this planet should be added to camPlan
+
+      // adds the planet to camPlan
+      camPlan.push(planNum);
+
+      // removes duplicate cam planets from copyCamPlan and sorts it
+      // there shouldn't be duplicates but just in case
+      camPlan = camPlan.sort().filter(function (item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+      });
+    } else {
+      // runs if this planet should be removed from camPlan
+
+      // the index of the planet to be removed
+      let planIndex = camPlan.findIndex(plan => planNum == plan);
+
+      // removes the planet from camPlan
+      camPlan.splice(planIndex, 1);
+    }
   } else if (varName == 'r' || varName == 'mass') {
     // runs if the change was for radius or mass
 

@@ -9,5 +9,5 @@ To-Do:
 
 Known Bugs:
 1) auto-zoom isn't correct for a single planet (when there's 1 planet, zoom should be maxZoom)
-2) updating camPlan from the html doesn't work yet
-3) the entire visual section is currently just a placeholder
+2) the entire visual section is currently just a placeholder
+3) the place to click start sim is in the wrong place
