@@ -360,10 +360,8 @@ function createPlanHTML() {
   const planetsDiv = document.getElementById('planets');
   planetsDiv.innerHTML = '';
 
-  // add the 'Planets' header
-  let theHeader = document.createElement('h2');
-  theHeader.innerHTML = 'Planets';
-  planetsDiv.appendChild(theHeader);
+  // changes the grid layout based on screen size
+  planetsDiv.style.gridTemplateColumns = '1fr '.repeat(window.innerWidth / 300);
 
   // runs for each planet
   planets.forEach(function (plan, i) {
@@ -975,7 +973,11 @@ function plansCollide(index1, index2) {
   // sets camPlan to the copy array
   camPlan = copyCamPlan;
 
+  // logs the collision
   console.log(`New camPlan: [${camPlan}]`);
+
+  // updates the html
+  createPlanHTML();
 }
 
 // ----------TOOL FUNCTIONS----------

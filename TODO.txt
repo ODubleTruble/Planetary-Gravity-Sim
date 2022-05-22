@@ -1,13 +1,11 @@
 To-Do:
 1) before starting...
   1) be able to add planets at the start
-  2) show and be able to change camPlan
-  3) show the predicted trajectories as lines
+  2) show the predicted trajectories as lines
 2) make the camera more fluid and less shaky/rigid
 3) show a faded out path behind planets as they move
 4) add a way to save planet configurations (and maybe a way to save multiple configurations)
 
 Known Bugs:
 1) auto-zoom isn't correct for a single planet (when there's 1 planet, zoom should be maxZoom)
-2) the entire visual section is currently just a placeholder
-3) the place to click start sim is in the wrong place
+2) the place to click start sim is in the wrong place

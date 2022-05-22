@@ -52,22 +52,13 @@ canvas {
 }
 
 .planets {
-  display: inline-block;
-  padding-right: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding-right: 10px;
   padding-bottom: 20px;
   vertical-align: top;
 }
 
-.visual {
-  display: inline-block;
-  padding-bottom: 20px;
-  vertical-align: top;
-}
-
-h3 {
+h1, h3 {
   margin-bottom: 5px;
-}
-
-.plan0, .plan1 {
-  margin-bottom: 10px;
 }
