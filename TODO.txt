@@ -7,4 +7,3 @@ To-Do:
 
 Known Bugs:
 1) auto-zoom isn't correct for a single planet (when there's 1 planet, zoom should be maxZoom)
-2) the place to click start sim is in the wrong place

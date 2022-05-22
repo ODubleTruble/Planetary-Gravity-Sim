@@ -76,8 +76,10 @@ window.addEventListener('resize', function () {
 
 // detects for clicks
 window.addEventListener('click', function (pos) {
-  mouseX = pos.clientX;
-  mouseY = pos.clientY;
+  let bound = canvas.getBoundingClientRect();
+
+  mouseX = pos.clientX - bound.left - canvas.clientLeft;
+  mouseY = pos.clientY - bound.top - canvas.clientTop;
 
   // if clicked start sim button and sim isn't running
   if (!startSim) {
