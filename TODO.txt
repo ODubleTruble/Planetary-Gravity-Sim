@@ -1,13 +1,13 @@
 To-Do:
 1) before starting...
-  1) be able to move the planets around
-  2) be able to change data values of planets
-  3) be able to add planets at the start
-  4) show and be able to change camPlan
-  5) show the predicted trajectories as lines
+  1) be able to add planets at the start
+  2) show and be able to change camPlan
+  3) show the predicted trajectories as lines
 2) make the camera more fluid and less shaky/rigid
 3) show a faded out path behind planets as they move
 4) add a way to save planet configurations (and maybe a way to save multiple configurations)
 
 Known Bugs:
 1) auto-zoom isn't correct for a single planet (when there's 1 planet, zoom should be maxZoom)
+2) updating camPlan from the html doesn't work yet
+3) the entire visual section is currently just a placeholder

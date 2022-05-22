@@ -9,6 +9,62 @@
   <link rel="icon" href="https://cdn.pixabay.com/photo/2013/07/12/13/26/saturn-147035_960_720.png" type="image/x-icon">
 </head>
 <body>
+  <div class="topnav">
+    <p>Planetary Gravity Simulation</p>
+    <a href="https://github.com/ODubleTruble/Planetary-Gravity-Sim" target="_blank">GitHub</a>
+  </div>
+
+  <div class="settings">
+    <div class="planets" id="planets">
+      <h2>Planets</h2>
+
+      <div class="INITIALplan0">
+        <h3>Planet 0</h3>
+        <label>Radius: </label>
+        <input type="text" id="plan0r" name="plan0r">
+        <br>
+        <label>Mass: </label>
+        <input type="text" id="plan0mass" name="plan0mass">
+        <br>
+
+        <label>X: </label>
+        <input type="text" id="plan0x" name="plan0x">
+        <br>
+        <label>Y: </label>
+        <input type="text" id="plan0y" name="plan0y">
+        <br>
+
+        <label>Velocity: </label>
+        <input type="text" id="plan0vel" name="plan0vel">
+        <br>
+        <label>Vel. Direction: </label>
+        <input type="text" id="plan0velDir" name="plan0velDir">
+        <br>
+
+        <label>Camera depends on this planet: </label>
+        <input type="checkbox" id="plan0cam" name="plan0cam">
+      </div>
+
+      <div class="INITIALplan1">
+        <h3>Planet 1</h3>
+        <label>Radius: </label>
+        <input type="text" id="plan1r" name="plan1r">
+        <br>
+        <label>Mass: </label>
+        <input type="text" id="plan1mass" name="plan1mass">
+      </div>
+    </div>
+
+    <div class="visual">
+      <h2>Visual Settings</h2>
+      <p>What planets will the camera follow:</p>
+      <div class="camPlanets">
+        <input type="checkbox" id="camPlan0" name="camPlan0" value="value">
+        <label for="checkbox">Planet 0</label>
+      </div>
+    </div>
+  </div>
+
   <canvas></canvas>
   <script src="main.js" type="text/javascript"></script>
 </body>

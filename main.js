@@ -61,7 +61,7 @@ var mouseY = 0;
 var simCount = 0;
 var drawCount = 0;
 
-var config = 8;
+var config = 1;
 console.log(`CONFIG: ${config}`);
 
 // ----------EVENT LISTENERS----------
@@ -109,9 +109,17 @@ function init() {
 
   // draws the planets' every set interval
   intervals.push(window.setInterval(function () {updateScreen();}, 1000 / fps));
+
+  // creates the html for the planets
+  createPlanHTML();
 }
 
 function makeInitialPlanets() {
+  if (config == 0) {
+    camPlan = [0];
+    planets.push(new Planet(60, 0, 0, 0, 0, colorArray[0]));
+  }
+
   // original 3-planet simulation; good for consistency tests
   if (config == 1) {
     camPlan = [0, 1, 2];
@@ -321,7 +329,11 @@ function simulatePlanets() {
 // updates the screen (only visual things)
 function updateScreen() {
   // clears the canvas
-  c.clearRect(0, 0, innerWidth, innerHeight);
+  c.fillStyle = '#111111';
+  c.fillRect(0, 0, innerWidth, innerHeight);
+
+  // draws border around the canvas
+  drawBorder();
 
   // updates zoom
   updateZoom();
@@ -341,6 +353,190 @@ function updateScreen() {
 }
 
 // ----------DO SOMETHING FUNCTIONS----------
+
+// creates the html for the planets
+function createPlanHTML() {
+  // get the planets div and clear it
+  const planetsDiv = document.getElementById('planets');
+  planetsDiv.innerHTML = '';
+
+  // add the 'Planets' header
+  let theHeader = document.createElement('h2');
+  theHeader.innerHTML = 'Planets';
+  planetsDiv.appendChild(theHeader);
+
+  // runs for each planet
+  planets.forEach(function (plan, i) {
+    // create the div for this planet
+    let planDiv = document.createElement('div');
+    planDiv.className = `plan${i}`;
+
+    // the planet header
+    let planHeader = document.createElement('h3');
+    planHeader.innerHTML = `Planet ${i}`;
+    planDiv.appendChild(planHeader);
+
+    // radius
+    let rLabel = document.createElement('label');
+    rLabel.innerHTML = 'Radius: ';
+    planDiv.appendChild(rLabel);
+    let rBox = document.createElement('input');
+    rBox.setAttribute('type', 'text');
+    rBox.setAttribute('id', `plan${i}r`);
+    rBox.setAttribute('name', `plan${i}r`);
+    rBox.setAttribute('value', plan.r);
+    rBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'r')`);
+    planDiv.appendChild(rBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // mass
+    let massLabel = document.createElement('label');
+    massLabel.innerHTML = 'Mass: ';
+    planDiv.appendChild(massLabel);
+    let massBox = document.createElement('input');
+    massBox.setAttribute('type', 'text');
+    massBox.setAttribute('id', `plan${i}mass`);
+    massBox.setAttribute('name', `plan${i}mass`);
+    massBox.setAttribute('value', plan.mass);
+    massBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'mass')`);
+    planDiv.appendChild(massBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // x
+    let xLabel = document.createElement('label');
+    xLabel.innerHTML = 'X: ';
+    planDiv.appendChild(xLabel);
+    let xBox = document.createElement('input');
+    xBox.setAttribute('type', 'text');
+    xBox.setAttribute('id', `plan${i}x`);
+    xBox.setAttribute('name', `plan${i}x`);
+    xBox.setAttribute('value', plan.x);
+    xBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'x')`);
+    planDiv.appendChild(xBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // y
+    let yLabel = document.createElement('label');
+    yLabel.innerHTML = 'Y: ';
+    planDiv.appendChild(yLabel);
+    let yBox = document.createElement('input');
+    yBox.setAttribute('type', 'text');
+    yBox.setAttribute('id', `plan${i}y`);
+    yBox.setAttribute('name', `plan${i}y`);
+    yBox.setAttribute('value', plan.y);
+    yBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'y')`);
+    planDiv.appendChild(yBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // velocity
+    let velLabel = document.createElement('label');
+    velLabel.innerHTML = 'Velocity: ';
+    planDiv.appendChild(velLabel);
+    let velBox = document.createElement('input');
+    velBox.setAttribute('type', 'text');
+    velBox.setAttribute('id', `plan${i}vel`);
+    velBox.setAttribute('name', `plan${i}vel`);
+    velBox.setAttribute('value', plan.vel);
+    velBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'vel')`);
+    planDiv.appendChild(velBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // velocity direction
+    let velDirLabel = document.createElement('label');
+    velDirLabel.innerHTML = 'Vel. Direction: ';
+    planDiv.appendChild(velDirLabel);
+    let velDirBox = document.createElement('input');
+    velDirBox.setAttribute('type', 'text');
+    velDirBox.setAttribute('id', `plan${i}velDir`);
+    velDirBox.setAttribute('name', `plan${i}velDir`);
+    velDirBox.setAttribute('value', plan.velDir);
+    velDirBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'velDir')`);
+    planDiv.appendChild(velDirBox);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
+    // does camera depend on this planet
+    let camDepLabel = document.createElement('label');
+    camDepLabel.innerHTML = 'Camera depends on this planet: ';
+    planDiv.appendChild(camDepLabel);
+    let camDepBox = document.createElement('input');
+    camDepBox.setAttribute('type', 'checkbox');
+    camDepBox.setAttribute('id', `plan${i}cam`);
+    camDepBox.setAttribute('name', `plan${i}cam`);
+    camDepBox.setAttribute('onchange', `htmlInputsChanged(${i}, 'cam')`);
+    planDiv.appendChild(camDepBox);
+
+    // insert the planDiv
+    planetsDiv.insertAdjacentElement('beforeend', planDiv);
+  });
+}
+
+// runs when one of the boxes in the html has changed
+function htmlInputsChanged(planNum, varName) {
+  if (varName == 'cam') {
+    // runs if the change was for the camera
+
+    console.log(`plan ${planNum} should change camera`);
+  } else if (varName == 'r' || varName == 'mass') {
+    // runs if the change was for radius or mass
+
+    // gets the changed value
+    newVal = document.getElementById(`plan${planNum}${varName}`).value;
+
+    // converts the value to a number; returns NaN if not a number
+    newVal = Number(newVal);
+
+    // sets the planet's radius or mass to the input value
+    planets[planNum][varName] = newVal;
+
+    // recalculates the planet's radius or mass depending on which was changed
+    // also updates the radius or mass input box in the html
+    if (varName == 'r') {
+      planets[planNum].mass = (4 / 3) * Math.PI * (newVal ** 3);
+      let massBox = document.getElementById(`plan${planNum}mass`);
+      massBox.value = planets[planNum].mass;
+    } else {
+      planets[planNum].r = Math.cbrt((3 * newVal) / (4 * Math.PI));
+      let rBox = document.getElementById(`plan${planNum}r`);
+      rBox.value = planets[planNum].r;
+    }
+  } else {
+    // runs if the change wasn't for camera, radius, or mass
+
+    // gets the changed value
+    newVal = document.getElementById(`plan${planNum}${varName}`).value;
+
+    // converts the value to a number; returns NaN if not a number
+    newVal = Number(newVal);
+
+    // sets the planet's value to the input value
+    planets[planNum][varName] = newVal;
+  }
+}
+
+// draws a border around the canvas
+function drawBorder() {
+  c.beginPath();
+  c.moveTo(0, 0);
+  c.lineTo(innerWidth, 0);
+  c.lineTo(innerWidth, innerHeight);
+  c.lineTo(0, innerHeight);
+  c.lineTo(0, 0);
+  c.lineWidth = 10;
+  c.strokeStyle = '#222222';
+  c.stroke();
+}
 
 // draws the planet data box
 function drawPlanetDataBox() {
