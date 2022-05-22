@@ -374,6 +374,17 @@ function createPlanHTML() {
     planHeader.innerHTML = `Planet ${i}`;
     planDiv.appendChild(planHeader);
 
+    // the remove button
+    let remBut = document.createElement('input');
+    remBut.setAttribute('type', 'button');
+    remBut.setAttribute('value', '-');
+    remBut.setAttribute('onclick', `removePlan(${i})`);
+    remBut.className = 'removeButton';
+    planDiv.appendChild(remBut);
+
+    // insert a break
+    planDiv.appendChild(document.createElement('br'));
+
     // radius
     let rLabel = document.createElement('label');
     rLabel.innerHTML = 'Radius: ';
@@ -469,6 +480,7 @@ function createPlanHTML() {
     camDepLabel.innerHTML = 'Camera depends on this planet: ';
     planDiv.appendChild(camDepLabel);
     let camDepBox = document.createElement('input');
+    camDepBox.className = 'chkBox';
     camDepBox.setAttribute('type', 'checkbox');
     camDepBox.setAttribute('id', `plan${i}cam`);
     camDepBox.setAttribute('name', `plan${i}cam`);
@@ -547,6 +559,43 @@ function htmlInputsChanged(planNum, varName) {
     // sets the planet's value to the input value
     planets[planNum][varName] = newVal;
   }
+}
+
+// runs if the button to add a new planet was pressed
+function addNewPlan() {
+  planets.push(new Planet(10, 0, 0, 0, 0, colorArray[0]));
+  createPlanHTML();
+}
+
+// runs if button to remove a planet is pressed
+function removePlan(planNum) {
+  // -----removes the planet from camPlan-----
+  // the index of the planet to be removed
+  let planIndex = camPlan.findIndex(plan => planNum == plan);
+
+  // runs if planNum was in camPlan
+  if (planIndex != -1) {
+    // removes the planet from camPlan
+    camPlan.splice(planIndex, 1);
+
+    // decreases every plan after this in camPlan by 1
+    camPlan.forEach(function (plan, i) {
+      // runs if this plan was after the removed plan in camPlan
+      if (i >= planNum) {
+        camPlan[i] -= 1;
+      }
+    });
+  }
+
+  // -----removes the planet from planets-----
+  // the index of the planet to be removed
+  planIndex = planets.findIndex(planObj => planets[planNum] == planObj);
+
+  // removes the planet from planets
+  planets.splice(planIndex, 1);
+
+  // -----updates the html-----
+  createPlanHTML();
 }
 
 // draws a border around the canvas
